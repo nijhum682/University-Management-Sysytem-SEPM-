@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Management - Teacher Portal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+    <div class="container-fluid">
+        <a class="navbar-brand d-flex align-items-center" th:href="@{/teacher/dashboard}">
+            <i class="bi bi-mortarboard-fill me-2"></i> University System
+        </a>
+        <div class="d-flex align-items-center text-white">
+            <span class="badge bg-success me-3 badge-role">TEACHER</span>
+            <span class="me-3 d-none d-md-inline" th:text="${currentUser}">teacher@university.com</span>
+            <form th:action="@{/logout}" method="post" class="d-inline">
+                <button type="submit" class="btn btn-sm btn-outline-light"><i class="bi bi-box-arrow-right"></i> Logout</button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <nav class="col-md-3 col-lg-2 d-md-block sidebar py-3">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/teacher/dashboard}">
+                        <i class="bi bi-speedometer2 me-2"></i> Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" th:href="@{/teacher/teachers}">
+                        <i class="bi bi-person-badge me-2"></i> Faculty Directory
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+                <h1 class="h2">Faculty Members Management</h1>
+                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addTeacherModal">
+                    <i class="bi bi-person-plus-fill me-1"></i> Add Faculty Member
+                </button>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Department</th>
+                                    <th>Designation</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="teacher : ${teachers}">
+                                    <td th:text="${teacher.id}">1</td>
+                                    <td th:text="${teacher.name}">Teacher Name</td>
+                                    <td th:text="${teacher.email}">teacher@university.com</td>
+                                    <td th:text="${teacher.department}">CS</td>
+                                    <td th:text="${teacher.designation}">Professor</td>
+                                    <td class="text-end">
+                                        <button class="btn btn-sm btn-outline-secondary me-1"
+                                                th:data-id="${teacher.id}"
+                                                th:data-name="${teacher.name}"
+                                                th:data-email="${teacher.email}"
+                                                th:data-department="${teacher.department}"
+                                                th:data-designation="${teacher.designation}"
+                                                onclick="openEditTeacherModal(this)">
+                                            <i class="bi bi-pencil-square"></i> Edit
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger"
+                                                th:onclick="'deleteEntity(\'/api/teachers\', ' + ${teacher.id} + ', \'Teacher\')'">
+                                            <i class="bi bi-trash"></i> Delete
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- Add Teacher Modal -->
+<div class="modal fade" id="addTeacherModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-person-plus me-2"></i>Add Faculty Member</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="addTeacherForm" autocomplete="off" onsubmit="submitEntityForm(event, 'addTeacherForm', '/api/teachers')">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" class="form-control" name="name" autocomplete="off" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" name="email" autocomplete="off" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-control" name="password" autocomplete="new-password" minlength="6" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Department</label>
+                        <input type="text" class="form-control" name="department" autocomplete="off" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Designation</label>
+                        <input type="text" class="form-control" name="designation" autocomplete="off" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Teacher Modal -->
+<div class="modal fade" id="editTeacherModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-pencil me-2"></i>Edit Faculty Member</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="editTeacherForm">
+                <input type="hidden" id="editTeacherId">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" class="form-control" id="editTeacherName" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" id="editTeacherEmail" name="email" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Department</label>
+                        <input type="text" class="form-control" id="editTeacherDepartment" name="department" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Designation</label>
+                        <input type="text" class="form-control" id="editTeacherDesignation" name="designation" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Password <small class="text-muted">(leave blank to keep unchanged)</small></label>
+                        <input type="password" class="form-control" id="editTeacherPassword" name="password" minlength="6">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-success" onclick="submitEditTeacher()">Update</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/main.js}"></script>
+<script>
+function openEditTeacherModal(btn) {
+    document.getElementById('editTeacherId').value = btn.getAttribute('data-id');
+    document.getElementById('editTeacherName').value = btn.getAttribute('data-name');
+    document.getElementById('editTeacherEmail').value = btn.getAttribute('data-email');
+    document.getElementById('editTeacherDepartment').value = btn.getAttribute('data-department');
+    document.getElementById('editTeacherDesignation').value = btn.getAttribute('data-designation');
+    document.getElementById('editTeacherPassword').value = '';
+    new bootstrap.Modal(document.getElementById('editTeacherModal')).show();
+}
+
+function submitEditTeacher() {
+    const id = document.getElementById('editTeacherId').value;
+    submitEntityForm(event, 'editTeacherForm', '/api/teachers', true, id);
+}
+</script>
+</body>
+</html>
